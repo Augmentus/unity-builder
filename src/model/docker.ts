@@ -1,3 +1,4 @@
+import * as core from '@actions/core';
 import ImageEnvironmentFactory from './image-environment-factory';
 import { existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
@@ -102,6 +103,7 @@ class Docker {
 
     const githubHome = path.join(runnerTempPath, '_github_home');
     if (!existsSync(githubHome)) mkdirSync(githubHome);
+    core.info('get windows docker command');
 
     return `docker run \
             --workdir c:${dockerWorkspacePath} \

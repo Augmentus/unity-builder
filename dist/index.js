@@ -6040,10 +6040,34 @@ exports.WorkflowCompositionRoot = WorkflowCompositionRoot;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core = __importStar(__nccwpck_require__(42186));
 const image_environment_factory_1 = __importDefault(__nccwpck_require__(25145));
 const node_fs_1 = __nccwpck_require__(87561);
 const node_path_1 = __importDefault(__nccwpck_require__(49411));
@@ -6107,6 +6131,7 @@ class Docker {
         const githubHome = node_path_1.default.join(runnerTempPath, '_github_home');
         if (!(0, node_fs_1.existsSync)(githubHome))
             (0, node_fs_1.mkdirSync)(githubHome);
+        core.info('get windows docker command');
         return `docker run \
             --workdir c:${dockerWorkspacePath} \
             --rm \
@@ -6117,10 +6142,6 @@ class Docker {
             --volume "${workspace}":"c:${dockerWorkspacePath}" \
             --volume "${githubHome}":"C:/githubhome" \
             --volume "c:/regkeys":"c:/regkeys" \
-            --volume "C:/Program Files/Microsoft Visual Studio":"C:/Program Files/Microsoft Visual Studio" \
-            --volume "C:/Program Files (x86)/Microsoft Visual Studio":"C:/Program Files (x86)/Microsoft Visual Studio" \
-            --volume "C:/Program Files (x86)/Windows Kits":"C:/Program Files (x86)/Windows Kits" \
-            --volume "C:/ProgramData/Microsoft/VisualStudio":"C:/ProgramData/Microsoft/VisualStudio" \
             --volume "${actionFolder}/default-build-script":"c:/UnityBuilderAction" \
             --volume "${actionFolder}/platforms/windows":"c:/steps" \
             --volume "${actionFolder}/unity-config":"C:/ProgramData/Unity/config" \
