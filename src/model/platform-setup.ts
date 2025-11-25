@@ -33,6 +33,7 @@ class PlatformSetup {
     let servicesConfig = fs.readFileSync(servicesConfigPathTemplate).toString();
     servicesConfig = servicesConfig.replace('%URL%', buildParameters.unityLicensingServer);
     fs.writeFileSync(servicesConfigPath, servicesConfig);
+    core.info(`Wrote services config to ${servicesConfig}`);
 
     SetupAndroid.setup(buildParameters);
   }

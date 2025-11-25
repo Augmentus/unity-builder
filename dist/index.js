@@ -7282,6 +7282,7 @@ class PlatformSetup {
         let servicesConfig = node_fs_1.default.readFileSync(servicesConfigPathTemplate).toString();
         servicesConfig = servicesConfig.replace('%URL%', buildParameters.unityLicensingServer);
         node_fs_1.default.writeFileSync(servicesConfigPath, servicesConfig);
+        core.info(`Wrote services config to ${servicesConfig}`);
         platform_setup_1.SetupAndroid.setup(buildParameters);
     }
 }
