@@ -8,47 +8,62 @@ Write-Output ""
 
 if ( ($null -ne ${env:UNITY_SERIAL}) -and ($null -ne ${env:UNITY_EMAIL}) -and ($null -ne ${env:UNITY_PASSWORD}) )
 {
-  #
-  # SERIAL LICENSE MODE
-  #
-  # This will activate unity, using the serial activation process.
-  #
-  Write-Output "Requesting activation"
+    #
+    # SERIAL LICENSE MODE (with retry)
+    #
 
-  $ACTIVATION_OUTPUT = Start-Process -FilePath "$Env:UNITY_PATH/Editor/Unity.exe" `
-                                     -NoNewWindow `
-                                     -PassThru `
-                                     -ArgumentList  "-batchmode `
-                                                     -quit `
-                                                     -nographics `
-                                                     -username $Env:UNITY_EMAIL `
-                                                     -password $Env:UNITY_PASSWORD `
-                                                     -serial $Env:UNITY_SERIAL `
-                                                     -projectPath c:/BlankProject `
-                                                     -logfile -"
+    $maxAttempts = 3
+    $attempt = 1
+    $ACTIVATION_EXIT_CODE = 1
 
-  # Cache the handle so exit code works properly
-  # https://stackoverflow.com/questions/10262231/obtaining-exitcode-using-start-process-and-waitforexit-instead-of-wait
-  $unityHandle = $ACTIVATION_OUTPUT.Handle
+    while ($attempt -le $maxAttempts) {
 
-  while ($true) {
-      if ($ACTIVATION_OUTPUT.HasExited) {
-        $ACTIVATION_EXIT_CODE = $ACTIVATION_OUTPUT.ExitCode
+        Write-Output "Requesting activation (Attempt $attempt of $maxAttempts)"
 
-        # Display results
-        if ($ACTIVATION_EXIT_CODE -eq 0)
-        {
-            Write-Output "Activation Succeeded"
-        } else
-        {
-            Write-Output "Activation failed, with exit code $ACTIVATION_EXIT_CODE"
+        $ACTIVATION_OUTPUT = Start-Process -FilePath "$Env:UNITY_PATH/Editor/Unity.exe" `
+                                           -NoNewWindow `
+                                           -PassThru `
+                                           -ArgumentList  "-batchmode `
+                                                           -quit `
+                                                           -nographics `
+                                                           -username $Env:UNITY_EMAIL `
+                                                           -password $Env:UNITY_PASSWORD `
+                                                           -serial $Env:UNITY_SERIAL `
+                                                           -projectPath c:/BlankProject `
+                                                           -logfile -"
+
+        # Cache handle
+        $unityHandle = $ACTIVATION_OUTPUT.Handle
+
+        while ($true) {
+            if ($ACTIVATION_OUTPUT.HasExited) {
+                $ACTIVATION_EXIT_CODE = $ACTIVATION_OUTPUT.ExitCode
+
+                if ($ACTIVATION_EXIT_CODE -eq 0) {
+                    Write-Output "Activation Succeeded"
+                    break
+                } else {
+                    Write-Output "Activation failed with exit code $ACTIVATION_EXIT_CODE"
+                }
+
+                break
+            }
+
+            Start-Sleep -Seconds 3
         }
 
-        break
-      }
+        if ($ACTIVATION_EXIT_CODE -eq 0) {
+            break    # success → exit retry loop
+        }
 
-      Start-Sleep -Seconds 3
-  }
+        if ($attempt -lt $maxAttempts) {
+            Write-Output "Retrying in 5 seconds..."
+            Start-Sleep -Seconds 5
+        }
+
+        $attempt++
+    }
+
 }
 elseif( ($null -ne ${env:UNITY_LICENSING_SERVER}))
 {
