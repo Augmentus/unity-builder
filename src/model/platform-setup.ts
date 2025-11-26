@@ -1,8 +1,7 @@
 import fs from 'node:fs';
 import * as core from '@actions/core';
 import { BuildParameters } from '.';
-import { SetupMac, SetupWindows, SetupAndroid } from './platform-setup/';
-import ValidateWindows from './platform-validation/validate-windows';
+import { SetupMac, SetupAndroid } from './platform-setup/';
 
 class PlatformSetup {
   static async setup(buildParameters: BuildParameters, actionFolder: string) {
@@ -10,8 +9,6 @@ class PlatformSetup {
 
     switch (process.platform) {
       case 'win32':
-        ValidateWindows.validate(buildParameters);
-        SetupWindows.setup(buildParameters);
         break;
       case 'darwin':
         await SetupMac.setup(buildParameters, actionFolder);
