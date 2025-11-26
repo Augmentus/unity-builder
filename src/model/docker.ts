@@ -114,7 +114,6 @@ class Docker {
             ${gitPrivateToken ? `--env GIT_PRIVATE_TOKEN="${gitPrivateToken}"` : ''} \
             --volume "${workspace}":"c:${dockerWorkspacePath}" \
             --volume "${githubHome}":"C:/githubhome" \
-            --volume "c:/regkeys":"c:/regkeys" \
             --volume "${actionFolder}/default-build-script":"c:/UnityBuilderAction" \
             --volume "${actionFolder}/platforms/windows":"c:/steps" \
             --volume "${actionFolder}/unity-config":"C:/ProgramData/Unity/config" \
