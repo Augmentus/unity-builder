@@ -7576,7 +7576,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const node_fs_1 = __importDefault(__nccwpck_require__(87561));
 class ValidateWindows {
     static validate(buildParameters) {
-        ValidateWindows.validateWindowsPlatformRequirements(buildParameters.targetPlatform);
+        // ValidateWindows.validateWindowsPlatformRequirements(buildParameters.targetPlatform);
         const { unityLicensingServer } = buildParameters;
         const hasLicensingCredentials = process.env.UNITY_EMAIL && process.env.UNITY_PASSWORD;
         const hasValidLicensingStrategy = hasLicensingCredentials || unityLicensingServer;

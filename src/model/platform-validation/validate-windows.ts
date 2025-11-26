@@ -3,7 +3,7 @@ import { BuildParameters } from '..';
 
 class ValidateWindows {
   public static validate(buildParameters: BuildParameters) {
-    ValidateWindows.validateWindowsPlatformRequirements(buildParameters.targetPlatform);
+    // ValidateWindows.validateWindowsPlatformRequirements(buildParameters.targetPlatform);
 
     const { unityLicensingServer } = buildParameters;
     const hasLicensingCredentials = process.env.UNITY_EMAIL && process.env.UNITY_PASSWORD;
