@@ -51,7 +51,6 @@ async function runMain() {
         const baseImage = new model_1.ImageTag(buildParameters);
         let exitCode = -1;
         if (buildParameters.providerStrategy === 'local') {
-            core.info('Building locally');
             await platform_setup_1.default.setup(buildParameters, actionFolder);
             exitCode =
                 process.platform === 'darwin'
@@ -7222,43 +7221,15 @@ exports["default"] = Output;
 /***/ }),
 
 /***/ 64423:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const node_fs_1 = __importDefault(__nccwpck_require__(87561));
-const core = __importStar(__nccwpck_require__(42186));
 const platform_setup_1 = __nccwpck_require__(2014);
 class PlatformSetup {
     static async setup(buildParameters, actionFolder) {
-        PlatformSetup.SetupShared(buildParameters, actionFolder);
+        PlatformSetup.SetupShared(buildParameters);
         switch (process.platform) {
             case 'win32':
                 break;
@@ -7268,18 +7239,7 @@ class PlatformSetup {
             // Add other baseOS's here
         }
     }
-    static SetupShared(buildParameters, actionFolder) {
-        const servicesConfigPath = `${actionFolder}/unity-config/services-config.json`;
-        const servicesConfigPathTemplate = `${servicesConfigPath}.template`;
-        if (!node_fs_1.default.existsSync(servicesConfigPathTemplate)) {
-            core.error(`Missing services config ${servicesConfigPathTemplate}`);
-            return;
-        }
-        let servicesConfig = node_fs_1.default.readFileSync(servicesConfigPathTemplate).toString();
-        servicesConfig = servicesConfig.replace('%URL%', buildParameters.unityLicensingServer);
-        node_fs_1.default.writeFileSync(servicesConfigPath, servicesConfig);
-        core.info(`Wrote services config to ${servicesConfigPath}`);
-        core.info(`Wrote services config to ${servicesConfig}`);
+    static SetupShared(buildParameters) {
         platform_setup_1.SetupAndroid.setup(buildParameters);
     }
 }

@@ -22,7 +22,6 @@ async function runMain() {
     let exitCode = -1;
 
     if (buildParameters.providerStrategy === 'local') {
-      core.info('Building locally');
       await PlatformSetup.setup(buildParameters, actionFolder);
       exitCode =
         process.platform === 'darwin'
