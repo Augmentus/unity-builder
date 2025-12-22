@@ -6086,7 +6086,42 @@ class Docker {
         }
         options.silent = silent;
         options.ignoreReturnCode = true;
+        // Retry logic for Windows to handle transient errors like "The RPC server is unavailable"
+        if (process.platform === 'win32') {
+            return await this.runWithRetry(runCommand, options);
+        }
         return await (0, exec_1.exec)(runCommand, undefined, options);
+    }
+    static async runWithRetry(runCommand, options) {
+        let lastExitCode = -1;
+        for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+            core.info(`Docker run attempt ${attempt} of ${this.maxRetries}`);
+            lastExitCode = await (0, exec_1.exec)(runCommand, undefined, options);
+            if (lastExitCode === 0) {
+                return lastExitCode;
+            }
+            if (attempt < this.maxRetries) {
+                const delay = this.retryDelay * attempt; // Exponential backoff: 15s, 30s, 45s...
+                core.warning(`Docker run failed with exit code ${lastExitCode}. Restarting Docker services and retrying...`);
+                // Restart Windows container services to recover from HCS/HNS errors
+                await this.restartWindowsDockerServices();
+                core.info(`Waiting ${delay / 1000} seconds before retry...`);
+                await new Promise((resolve) => setTimeout(resolve, delay));
+            }
+        }
+        core.error(`Docker run failed after ${this.maxRetries} attempts with exit code ${lastExitCode}`);
+        return lastExitCode;
+    }
+    static async restartWindowsDockerServices() {
+        core.info('Restarting Windows container services (vmcompute, hns)...');
+        try {
+            await (0, exec_1.exec)('powershell', ['-Command', 'Restart-Service', 'vmcompute', '-Force'], { ignoreReturnCode: true });
+            await (0, exec_1.exec)('powershell', ['-Command', 'Restart-Service', 'hns', '-Force'], { ignoreReturnCode: true });
+            core.info('Windows container services restarted successfully');
+        }
+        catch (error) {
+            core.warning(`Failed to restart Windows container services: ${error}`);
+        }
     }
     static getLinuxCommand(image, parameters, overrideCommands = '', additionalVariables = [], entrypointBash = false) {
         const { workspace, actionFolder, runnerTempPath, sshAgent, sshPublicKeysDirectoryPath, gitPrivateToken, dockerWorkspacePath, dockerCpuLimit, dockerMemoryLimit, } = parameters;
@@ -6151,6 +6186,8 @@ class Docker {
             powershell c:/steps/entrypoint.ps1`;
     }
 }
+Docker.maxRetries = 3;
+Docker.retryDelay = 15000; // 15 seconds
 exports["default"] = Docker;
 
 

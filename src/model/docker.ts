@@ -6,6 +6,9 @@ import { ExecOptions, exec } from '@actions/exec';
 import { DockerParameters, StringKeyValuePair } from './shared-types';
 
 class Docker {
+  static readonly maxRetries: number = 3;
+  static readonly retryDelay: number = 15000; // 15 seconds
+
   static async run(
     image: string,
     parameters: DockerParameters,
@@ -30,7 +33,52 @@ class Docker {
     options.silent = silent;
     options.ignoreReturnCode = true;
 
+    // Retry logic for Windows to handle transient errors like "The RPC server is unavailable"
+    if (process.platform === 'win32') {
+      return await this.runWithRetry(runCommand, options);
+    }
+
     return await exec(runCommand, undefined, options);
+  }
+
+  private static async runWithRetry(runCommand: string, options: ExecOptions): Promise<number> {
+    let lastExitCode = -1;
+
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      core.info(`Docker run attempt ${attempt} of ${this.maxRetries}`);
+
+      lastExitCode = await exec(runCommand, undefined, options);
+
+      if (lastExitCode === 0) {
+        return lastExitCode;
+      }
+
+      if (attempt < this.maxRetries) {
+        const delay = this.retryDelay * attempt; // Exponential backoff: 15s, 30s, 45s...
+        core.warning(`Docker run failed with exit code ${lastExitCode}. Restarting Docker services and retrying...`);
+
+        // Restart Windows container services to recover from HCS/HNS errors
+        await this.restartWindowsDockerServices();
+
+        core.info(`Waiting ${delay / 1000} seconds before retry...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+
+    core.error(`Docker run failed after ${this.maxRetries} attempts with exit code ${lastExitCode}`);
+
+    return lastExitCode;
+  }
+
+  private static async restartWindowsDockerServices(): Promise<void> {
+    core.info('Restarting Windows container services (vmcompute, hns)...');
+    try {
+      await exec('powershell', ['-Command', 'Restart-Service', 'vmcompute', '-Force'], { ignoreReturnCode: true });
+      await exec('powershell', ['-Command', 'Restart-Service', 'hns', '-Force'], { ignoreReturnCode: true });
+      core.info('Windows container services restarted successfully');
+    } catch (error) {
+      core.warning(`Failed to restart Windows container services: ${error}`);
+    }
   }
 
   static getLinuxCommand(
