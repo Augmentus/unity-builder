@@ -6040,6 +6040,29 @@ exports.WorkflowCompositionRoot = WorkflowCompositionRoot;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -6048,6 +6071,7 @@ const image_environment_factory_1 = __importDefault(__nccwpck_require__(25145));
 const node_fs_1 = __nccwpck_require__(87561);
 const node_path_1 = __importDefault(__nccwpck_require__(49411));
 const exec_1 = __nccwpck_require__(71514);
+const core = __importStar(__nccwpck_require__(42186));
 class Docker {
     static async run(image, parameters, silent = false, overrideCommands = '', additionalVariables = [], options = {}, entrypointBash = false) {
         let runCommand = '';
@@ -6063,7 +6087,42 @@ class Docker {
         }
         options.silent = silent;
         options.ignoreReturnCode = true;
+        // Retry logic for Windows to handle transient errors like "The RPC server is unavailable"
+        if (process.platform === 'win32') {
+            return await this.runWithRetry(runCommand, options);
+        }
         return await (0, exec_1.exec)(runCommand, undefined, options);
+    }
+    static async runWithRetry(runCommand, options) {
+        let lastExitCode = -1;
+        for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+            core.info(`Docker run attempt ${attempt} of ${this.maxRetries}`);
+            lastExitCode = await (0, exec_1.exec)(runCommand, undefined, options);
+            if (lastExitCode === 0) {
+                return lastExitCode;
+            }
+            if (attempt < this.maxRetries) {
+                const delay = this.retryDelay * attempt; // Exponential backoff: 15s, 30s, 45s...
+                core.warning(`Docker run failed with exit code ${lastExitCode}. Restarting Docker services and retrying...`);
+                // Restart Windows container services to recover from HCS/HNS errors
+                await this.restartWindowsDockerServices();
+                core.info(`Waiting ${delay / 1000} seconds before retry...`);
+                await new Promise((resolve) => setTimeout(resolve, delay));
+            }
+        }
+        core.error(`Docker run failed after ${this.maxRetries} attempts with exit code ${lastExitCode}`);
+        return lastExitCode;
+    }
+    static async restartWindowsDockerServices() {
+        core.info('Restarting Windows container services (vmcompute, hns)...');
+        try {
+            await (0, exec_1.exec)('powershell', ['-Command', 'Restart-Service', 'vmcompute', '-Force'], { ignoreReturnCode: true });
+            await (0, exec_1.exec)('powershell', ['-Command', 'Restart-Service', 'hns', '-Force'], { ignoreReturnCode: true });
+            core.info('Windows container services restarted successfully');
+        }
+        catch (error) {
+            core.warning(`Failed to restart Windows container services: ${error}`);
+        }
     }
     static getLinuxCommand(image, parameters, overrideCommands = '', additionalVariables = [], entrypointBash = false) {
         const { workspace, actionFolder, runnerTempPath, sshAgent, sshPublicKeysDirectoryPath, gitPrivateToken, dockerWorkspacePath, dockerCpuLimit, dockerMemoryLimit, } = parameters;
@@ -6132,6 +6191,8 @@ class Docker {
             powershell c:/steps/entrypoint.ps1`;
     }
 }
+Docker.maxRetries = 3;
+Docker.retryDelay = 15000; // 15 seconds
 exports["default"] = Docker;
 
 
