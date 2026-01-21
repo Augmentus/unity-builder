@@ -91,9 +91,14 @@ namespace UnityBuilderAction.Input
         bool secret = Secrets.Contains(flag);
         string displayValue = secret ? "*HIDDEN*" : "\"" + value + "\"";
 
-        // Assign
-        Console.WriteLine("Found flag \"" + flag + "\" with value " + displayValue);
-        providedArguments.Add(flag, value);
+        // Assign (using indexer to allow flag overriding - last occurrence wins)
+        if (providedArguments.ContainsKey(flag)) {
+          string previousValue = Secrets.Contains(flag) ? "*HIDDEN*" : "\"" + providedArguments[flag] + "\"";
+          Console.WriteLine("Flag \"" + flag + "\" was already set to " + previousValue + ", overriding with " + displayValue);
+        } else {
+          Console.WriteLine("Found flag \"" + flag + "\" with value " + displayValue);
+        }
+        providedArguments[flag] = value;
       }
     }
   }
