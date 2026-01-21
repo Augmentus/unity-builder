@@ -6482,7 +6482,9 @@ class ImageEnvironmentFactory {
                 process.env[p.name] = p.value.toString();
                 continue;
             }
-            string += `--env ${p.name}="${p.value}" `;
+            // Escape backslashes first, then double quotes to prevent shell injection
+            const escapedValue = p.value.toString().replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+            string += `--env ${p.name}="${escapedValue}" `;
         }
         return string;
     }
