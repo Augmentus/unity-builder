@@ -258,7 +258,9 @@ inputs:
   licencePollTimeoutMinutes:
     default: '60'
     required: false
-    description: 'Maximum time in minutes to poll for a floating license before giving up. Useful when multiple concurrent builds compete for limited license seats.'
+    description:
+      'Maximum time in minutes to poll for a floating license before giving up. Useful when multiple concurrent builds
+      compete for limited license seats.'
   licencePollIntervalSeconds:
     default: '30'
     required: false
