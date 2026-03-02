@@ -292,6 +292,8 @@ class BuildParameters {
             customImage: input_1.default.customImage,
             unitySerial,
             unityLicensingServer: input_1.default.unityLicensingServer,
+            licencePollTimeoutMinutes: input_1.default.licencePollTimeoutMinutes,
+            licencePollIntervalSeconds: input_1.default.licencePollIntervalSeconds,
             skipActivation: input_1.default.skipActivation,
             runnerTempPath: input_1.default.runnerTempPath,
             targetPlatform: input_1.default.targetPlatform,
@@ -6490,6 +6492,14 @@ class ImageEnvironmentFactory {
                 name: 'UNITY_LICENSING_SERVER',
                 value: parameters.unityLicensingServer,
             },
+            {
+                name: 'UNITY_LICENCE_POLL_TIMEOUT_MINUTES',
+                value: parameters.licencePollTimeoutMinutes,
+            },
+            {
+                name: 'UNITY_LICENCE_POLL_INTERVAL_SECONDS',
+                value: parameters.licencePollIntervalSeconds,
+            },
             { name: 'SKIP_ACTIVATION', value: parameters.skipActivation },
             { name: 'UNITY_VERSION', value: parameters.editorVersion },
             {
@@ -7060,6 +7070,12 @@ class Input {
     }
     static get unityLicensingServer() {
         return Input.getInput('unityLicensingServer') ?? '';
+    }
+    static get licencePollTimeoutMinutes() {
+        return Input.getInput('licencePollTimeoutMinutes') ?? '60';
+    }
+    static get licencePollIntervalSeconds() {
+        return Input.getInput('licencePollIntervalSeconds') ?? '30';
     }
     static get buildMethod() {
         return Input.getInput('buildMethod') ?? ''; // Processed in docker file

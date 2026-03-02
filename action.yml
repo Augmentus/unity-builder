@@ -255,6 +255,14 @@ inputs:
     default: ''
     required: false
     description: 'The Unity licensing server address to use for activating Unity.'
+  licencePollTimeoutMinutes:
+    default: '60'
+    required: false
+    description: 'Maximum time in minutes to poll for a floating license before giving up. Useful when multiple concurrent builds compete for limited license seats.'
+  licencePollIntervalSeconds:
+    default: '30'
+    required: false
+    description: 'Interval in seconds between floating license acquisition attempts.'
   dockerWorkspacePath:
     default: '/github/workspace'
     required: false

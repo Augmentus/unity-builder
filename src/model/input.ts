@@ -127,6 +127,14 @@ class Input {
     return Input.getInput('unityLicensingServer') ?? '';
   }
 
+  static get licencePollTimeoutMinutes(): string {
+    return Input.getInput('licencePollTimeoutMinutes') ?? '60';
+  }
+
+  static get licencePollIntervalSeconds(): string {
+    return Input.getInput('licencePollIntervalSeconds') ?? '30';
+  }
+
   static get buildMethod(): string {
     return Input.getInput('buildMethod') ?? ''; // Processed in docker file
   }
