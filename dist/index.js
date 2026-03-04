@@ -292,6 +292,7 @@ class BuildParameters {
             customImage: input_1.default.customImage,
             unitySerial,
             unityLicensingServer: input_1.default.unityLicensingServer,
+            unityLicensingProductIds: input_1.default.unityLicensingProductIds,
             licencePollTimeoutMinutes: input_1.default.licencePollTimeoutMinutes,
             licencePollIntervalSeconds: input_1.default.licencePollIntervalSeconds,
             skipActivation: input_1.default.skipActivation,
@@ -6493,6 +6494,10 @@ class ImageEnvironmentFactory {
                 value: parameters.unityLicensingServer,
             },
             {
+                name: 'UNITY_LICENSING_PRODUCT_IDS',
+                value: parameters.unityLicensingProductIds,
+            },
+            {
                 name: 'UNITY_LICENCE_POLL_TIMEOUT_MINUTES',
                 value: parameters.licencePollTimeoutMinutes,
             },
@@ -7071,6 +7076,9 @@ class Input {
     static get unityLicensingServer() {
         return Input.getInput('unityLicensingServer') ?? '';
     }
+    static get unityLicensingProductIds() {
+        return Input.getInput('unityLicensingProductIds') ?? '';
+    }
     static get licencePollTimeoutMinutes() {
         return Input.getInput('licencePollTimeoutMinutes') ?? '60';
     }
@@ -7501,6 +7509,7 @@ class SetupMac {
         process.env.UNITY_VERSION = buildParameters.editorVersion;
         process.env.UNITY_SERIAL = buildParameters.unitySerial;
         process.env.UNITY_LICENSING_SERVER = buildParameters.unityLicensingServer;
+        process.env.UNITY_LICENSING_PRODUCT_IDS = buildParameters.unityLicensingProductIds;
         process.env.SKIP_ACTIVATION = buildParameters.skipActivation;
         process.env.PROJECT_PATH = buildParameters.projectPath;
         process.env.BUILD_PROFILE = buildParameters.buildProfile;

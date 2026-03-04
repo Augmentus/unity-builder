@@ -22,6 +22,7 @@ class BuildParameters {
   public customImage!: string;
   public unitySerial!: string;
   public unityLicensingServer!: string;
+  public unityLicensingProductIds!: string;
   public licencePollTimeoutMinutes!: string;
   public licencePollIntervalSeconds!: string;
   public skipActivation!: string;
@@ -151,6 +152,7 @@ class BuildParameters {
       customImage: Input.customImage,
       unitySerial,
       unityLicensingServer: Input.unityLicensingServer,
+      unityLicensingProductIds: Input.unityLicensingProductIds,
       licencePollTimeoutMinutes: Input.licencePollTimeoutMinutes,
       licencePollIntervalSeconds: Input.licencePollIntervalSeconds,
       skipActivation: Input.skipActivation,

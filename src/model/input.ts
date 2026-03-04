@@ -127,6 +127,10 @@ class Input {
     return Input.getInput('unityLicensingServer') ?? '';
   }
 
+  static get unityLicensingProductIds(): string {
+    return Input.getInput('unityLicensingProductIds') ?? '';
+  }
+
   static get licencePollTimeoutMinutes(): string {
     return Input.getInput('licencePollTimeoutMinutes') ?? '60';
   }

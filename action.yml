@@ -255,6 +255,13 @@ inputs:
     default: ''
     required: false
     description: 'The Unity licensing server address to use for activating Unity.'
+  unityLicensingProductIds:
+    default: ''
+    required: false
+    description:
+      'Comma separated list of license product identifiers (licenseEntitlementGroupId) to request
+      from the license server. Not setting this uses the server default. Only applicable if
+      unityLicensingServer is set.'
   licencePollTimeoutMinutes:
     default: '60'
     required: false

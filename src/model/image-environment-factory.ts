@@ -30,6 +30,10 @@ class ImageEnvironmentFactory {
         value: parameters.unityLicensingServer,
       },
       {
+        name: 'UNITY_LICENSING_PRODUCT_IDS',
+        value: parameters.unityLicensingProductIds,
+      },
+      {
         name: 'UNITY_LICENCE_POLL_TIMEOUT_MINUTES',
         value: parameters.licencePollTimeoutMinutes,
       },
