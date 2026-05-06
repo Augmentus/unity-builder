@@ -221,9 +221,9 @@ jobs:
       RUN_GITHUB_INTEGRATION_TESTS: true
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 24
           cache: 'yarn'
       - run: yarn install --frozen-lockfile
       - run: yarn test cloud-runner-github-checks-integration-test --detectOpenHandles --forceExit --runInBand
